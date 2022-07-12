@@ -5,7 +5,8 @@
   <body>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script>
-      var socket = io({ query: { user: "guest" } });
+      const user = new URLSearchParams(window.location.search).get("user");
+      var socket = io({ query: { user: user, position: "25 3 0" } });
 
       socket.on("connect", () => {
         document.addEventListener("keydown", function (e) {
@@ -16,26 +17,41 @@
         });
       });
 
-      socket.on("newGuest", function (msg) {
-        var el = document.createElement("a-entity");
-        var sceneEl = document.querySelector("a-scene");
-        var entityEl = document.createElement("a-box");
-        entityEl.setAttribute("color", "tomato");
-        entityEl.setAttribute("position", `${msg.position} 10 5`);
-        entityEl.setAttribute("depth", "1");
-        entityEl.setAttribute("height", "4");
-        entityEl.setAttribute("width", "0.5");
-        entityEl.setAttribute("id", "guest");
-        sceneEl.appendChild(entityEl);
-        console.log("entity created");
+      socket.on("guests", function (msg) {
+        msg.forEach((element) => {
+          if (element.user !== user) {
+            var el = document.createElement("a-entity");
+            var sceneEl = document.querySelector("a-scene");
+            var entityElToRemove = sceneEl.querySelector(`#${msg.user}`);
+            entityElToRemove?.parentNode.removeChild(entityElToRemove);
+
+            var entityEl = document.createElement("a-box");
+            entityEl.setAttribute("color", `${element.color}`);
+            entityEl.setAttribute("position", `${element.position}`);
+            entityEl.setAttribute("depth", "1");
+            entityEl.setAttribute("height", "6");
+            entityEl.setAttribute("width", "0.5");
+            entityEl.setAttribute("id", `${element.user}`);
+            sceneEl.appendChild(entityEl);
+            console.log(`Creo a el usuario ${element.user}`);
+          }
+        });
       });
 
-      socket.on("move", function (position) {
-        var sceneEl = document.querySelector("a-scene");
-        var entityEl = sceneEl.querySelector("#guest");
-        console.log("guest", entityEl);
-        if (entityEl) {
-          entityEl.setAttribute("position", position);
+      socket.on("move", function (msg) {
+        console.log(user, msg.user);
+        if (msg.user !== user) {
+          console.log("going set position:", msg);
+          var sceneEl = document.querySelector("a-scene");
+          var entityEl = sceneEl.querySelector(`#${msg.user}`);
+          if (entityEl) {
+            entityEl.setAttribute(
+              "position",
+              `${msg.position.x + 25} ${msg.position.y} ${msg.position.z}`
+            );
+          } else {
+            console.log("cant find user:", msg.user);
+          }
         }
       });
 
@@ -43,17 +59,17 @@
         var sceneEl = document.querySelector("a-scene");
         var entityEl = sceneEl.querySelector("#camera");
         var position = entityEl.getAttribute("position");
-        socket.emit("move", position);
+        console.log("going to send position:", position);
+        socket.emit("move", { position, user: user });
       }
     </script>
     <a-scene background="color: #FF5733">
       <a-assets>
-        <img id="plane" src="cityplane.png" /><img id="sky" src="sky.png" />
+        <img id="plane" src="city.jpg" /><img id="sky" src="paris.jpg" />
       </a-assets>
-      <a-entity id="rig" position="25 10 0">
+      <a-entity id="rig" position="25 3 0">
         <a-camera id="camera"></a-camera>
       </a-entity>
-      <a-box position="40 10 0" color="black" depth="2" height="4" width="0.5"></a-box>
       <a-plane
         position="0 0 0"
         rotation="-90 0 0"

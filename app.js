@@ -14,6 +14,8 @@ const io = require("socket.io")(server, {
   },
 });
 
+let clients = [];
+
 app.use(cors());
 
 app.use("/", express.static("public"));
@@ -22,14 +24,57 @@ app.get("/map", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-io.on("connection", (socket) => {
-  socket.broadcast.emit("newGuest", { position: randomInt(60) });
+app.get("/clients", (req, res) => {
+  res.send({ clients: getClientsClean() });
+});
 
+function getClientsClean() {
+  let clientsClean = [];
 
-  socket.on('move', (msg) => {
-    io.emit('move', msg);
+  clients.forEach((item) => {
+    clientsClean.push({
+      id: item.socket.id,
+      user: item.user,
+      position: item.position,
+      color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+    });
   });
 
+  return clientsClean;
+}
+
+io.on("connection", (socket) => {
+  clients.push({
+    socket,
+    user: socket.handshake.query.user,
+    position: socket.handshake.query.position,
+  });
+
+  io.emit("guests", getClientsClean());
+
+  socket.on("move", (msg) => {
+    io.emit("move", msg);
+  });
+
+  socket.on("disconnect", () => {
+    newClients = [];
+
+    clients.forEach((client) => {
+      if (client.socket.id !== socket.id) {
+        newClients.push(client);
+      }
+    });
+    clients = newClients;
+
+    socket.broadcast
+      .to(socket.handshake.query.room)
+      .emit(
+        "disconnected",
+        `El cliente ${socket.handshake.query.user} se desconecto`
+      );
+
+    io.emit("guests", getClientsClean());
+  });
 });
 
 server.listen(3000);
