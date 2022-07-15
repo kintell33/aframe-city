@@ -33,6 +33,7 @@
             );
 
             if (!entityElToRemoveBody) {
+              //create body
               var body = document.createElement("a-box");
               body.setAttribute("color", `${element.color}`);
               body.setAttribute("position", `${element.position}`);
@@ -41,8 +42,7 @@
               body.setAttribute("width", "0.5");
               body.setAttribute("id", `${element.user}_body`);
 
-              console.log("head", body);
-
+              //create head
               var head = document.createElement("a-box");
               head.setAttribute("color", `white`);
               head.setAttribute(
@@ -56,15 +56,24 @@
               head.setAttribute("width", "1");
               head.setAttribute("id", `${element.user}_head`);
 
-              console.log("head", head);
+              //create name
+              var nameElement = document.createElement("a-entity");
+              nameElement.setAttribute("text", `value: ${element.user};`);
+              nameElement.setAttribute(
+                "position",
+                `${element.position.split(" ")[0]} 7 ${
+                  element.position.split(" ")[2]
+                }`
+              );
+              nameElement.setAttribute("id", `${element.user}_name`);
 
+              //find already spawned items
               var sceneElNew = document.querySelector("a-scene");
               var bodyFounded = sceneEl.querySelector(`#${element.user}_body`);
-              console.log("i fopund this", bodyFounded);
-
               if (!bodyFounded) {
                 sceneEl.appendChild(body);
                 sceneEl.appendChild(head);
+                sceneEl.appendChild(nameElement);
               }
             }
           }
@@ -92,6 +101,26 @@
             head.setAttribute(
               "position",
               `${msg.position.x + 25} ${msg.position.y + 3.5} ${msg.position.z}`
+            );
+          } else {
+            console.error("cant find user:", msg.user);
+          }
+
+          var name = sceneEl.querySelector(`#${msg.user}_name`);
+          if (name) {
+            name.setAttribute(
+              "position",
+              `${msg.position.x + 16} ${msg.position.y + 6} ${msg.position.z}`
+            );
+
+            name.setAttribute(
+              "rotation",
+              `180 1 180`
+            );
+
+            name.setAttribute(
+              "scale",
+              `20 20 20`
             );
           } else {
             console.error("cant find user:", msg.user);
