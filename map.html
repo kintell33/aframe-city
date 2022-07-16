@@ -9,6 +9,8 @@
     <script>
       const user = new URLSearchParams(window.location.search).get("user");
       var socket = io({ query: { user: user, position: "25 3 0" } });
+      var muteStatus = true;
+      var hearStatus = true;
 
       window.onload = (e) => {
         mainFunction(1000);
@@ -35,7 +37,7 @@
 
       socket.on("destroyUser", (msg) => {
         var sceneEl = document.querySelector("a-scene");
-        
+
         var entityElToRemovebody = sceneEl.querySelector(`#${msg}_body`);
         var entityElToRemovehead = sceneEl.querySelector(`#${msg}_head`);
         var entityElToRemovename = sceneEl.querySelector(`#${msg}_name`);
@@ -174,8 +176,10 @@
             var fileReader = new FileReader();
             fileReader.readAsDataURL(audioBlob);
             fileReader.onloadend = function () {
-              var base64String = fileReader.result;
-              socket.emit("voice", base64String);
+              if (!muteStatus) {
+                var base64String = fileReader.result;
+                socket.emit("voice", base64String);
+              }
             };
 
             madiaRecorder.start();
@@ -191,11 +195,67 @@
         });
 
         socket.on("send", function (data) {
-          var audio = new Audio(data);
-          audio.play();
+          if (hearStatus) {
+            var audio = new Audio(data);
+            audio.play();
+          }
         });
       }
+
+      function mute() {
+        muteStatus = !muteStatus;
+        let buttonMute = document.getElementById("buttonMute");
+        if (muteStatus) {
+          buttonMute.innerHTML = "MUTEADO";
+        } else {
+          buttonMute.innerHTML = "MICROFONO ABIERTO";
+        }
+      }
+
+      function hear() {
+        hearStatus = !hearStatus;
+        let buttonHear = document.getElementById("buttonHear");
+        if (hearStatus) {
+          buttonHear.innerHTML = "ESCUCHANDO";
+        } else {
+          buttonHear.innerHTML = "SILENCIADO";
+        }
+      }
     </script>
+    <style>
+      .button {
+        position: fixed;
+        background-color: #41443f;
+        color: white;
+        width: 200px;
+        height: 40px;
+        z-index: 100;
+        border-radius: 10px;
+        border: 2px solid #000;
+        font-weight: 800;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, Helvetica, sans-serif;
+        cursor: pointer;
+      }
+    </style>
+    <div
+      id="buttonMute"
+      class="button"
+      onclick="mute();"
+      style="top: 5px; left: 5px"
+    >
+      MUTEADO
+    </div>
+    <div
+      id="buttonHear"
+      class="button"
+      onclick="hear();"
+      style="top: 5px; left: 220px"
+    >
+      ESCUCHANDO
+    </div>
     <a-scene background="color: #fff">
       <a-assets>
         <img id="plane" src="city.jpg" /><img id="sky" src="paris.jpg" />
@@ -211,7 +271,6 @@
       <a-entity id="rig" position="25 3 0">
         <a-camera id="camera" rotation-reader></a-camera>
       </a-entity>
-
       <a-plane
         position="0 0 0"
         rotation="-90 0 0"
