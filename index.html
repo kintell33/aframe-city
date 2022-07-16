@@ -1,6 +1,7 @@
 <html>
   <head>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
   </head>
   <body>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
@@ -57,14 +58,16 @@
               head.setAttribute("id", `${element.user}_head`);
 
               //create name
-              var nameElement = document.createElement("a-entity");
-              nameElement.setAttribute("text", `value: ${element.user};`);
+              var nameElement = document.createElement("a-text");
+              nameElement.setAttribute("value", `${element.user}`);
+              nameElement.setAttribute("align", `center`);
               nameElement.setAttribute(
                 "position",
                 `${element.position.split(" ")[0]} 7 ${
                   element.position.split(" ")[2]
                 }`
               );
+              nameElement.setAttribute("look-at","#camera");
               nameElement.setAttribute("id", `${element.user}_name`);
 
               //find already spawned items
@@ -110,17 +113,12 @@
           if (name) {
             name.setAttribute(
               "position",
-              `${msg.position.x + 16} ${msg.position.y + 6} ${msg.position.z}`
-            );
-
-            name.setAttribute(
-              "rotation",
-              `180 1 180`
+              `${msg.position.x+25} ${msg.position.y + 7} ${msg.position.z}`
             );
 
             name.setAttribute(
               "scale",
-              `20 20 20`
+              `5 5 5`
             );
           } else {
             console.error("cant find user:", msg.user);
