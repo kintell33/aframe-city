@@ -1,8 +1,9 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://cdn.rawgit.com/elbobo/aframe-multisrc-component/b6d23310/dist/0.3/aframe-multisrc-component.js"></script>
+    <script src="https://unpkg.com/aframe-room-component/dist/aframe-room-component.min.js"></script>
   </head>
   <body>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
@@ -45,7 +46,6 @@
         entityElToRemovename.parentNode.removeChild(entityElToRemovename);
         entityElToRemovebody.parentNode.removeChild(entityElToRemovebody);
         entityElToRemovehead.parentNode.removeChild(entityElToRemovehead);
-        
       });
 
       socket.on("guests", function (msg) {
@@ -259,8 +259,9 @@
     </div>
     <a-scene background="color: #fff">
       <a-assets>
-        <img id="plane" src="city.jpg" /><img id="sky" src="paris.jpg" />
+        <img id="plane" src="grass.jpg" /><img id="sky" src="sky.jpg" />
         <img id="face" src="face.png" />
+        <img id="wall" src="wall_brick.jpg" />
 
         <img id="right" src="side.png" />
         <img id="left" src="side.png" />
@@ -275,10 +276,19 @@
       <a-plane
         position="0 0 0"
         rotation="-90 0 0"
-        width="400"
-        height="400"
+        width="100"
+        height="100"
         src="#plane"
       ></a-plane>
+
+      <rw-room position="-50 0 -50" >
+        <rw-wall position="100 0 0" material="src:#wall" height="10" >
+          <rw-doorhole id="holeA"></rw-doorhole>
+        </rw-wall>
+        <rw-wall position="100 0 100" material="src:#wall" height="10"></rw-wall>
+        <rw-wall position="0 0 100" material="src:#wall" height="10"></rw-wall>
+        <rw-wall position="0 0 0" material="src:#wall" height="10"></rw-wall>
+      </rw-room>
       <a-sky src="#sky"></a-sky>
     </a-scene>
   </body>
