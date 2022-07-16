@@ -42,9 +42,10 @@
         var entityElToRemovehead = sceneEl.querySelector(`#${msg}_head`);
         var entityElToRemovename = sceneEl.querySelector(`#${msg}_name`);
 
+        entityElToRemovename.parentNode.removeChild(entityElToRemovename);
         entityElToRemovebody.parentNode.removeChild(entityElToRemovebody);
         entityElToRemovehead.parentNode.removeChild(entityElToRemovehead);
-        entityElToRemovename.parentNode.removeChild(entityElToRemovename);
+        
       });
 
       socket.on("guests", function (msg) {
