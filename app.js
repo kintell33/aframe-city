@@ -20,8 +20,12 @@ app.use(cors());
 
 app.use("/", express.static("public"));
 
-app.get("/map", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
+});
+
+app.get("/map", (req, res) => {
+  res.sendFile(__dirname + "/map.html");
 });
 
 app.get("/clients", (req, res) => {
