@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
   io.emit("guests", getClientsClean());
 
   socket.on("move", (msg) => {
+
     io.emit("move", msg);
   });
 
