@@ -33,6 +33,18 @@
         console.log("conected");
       });
 
+      socket.on("destroyUser", (msg) => {
+        var sceneEl = document.querySelector("a-scene");
+        
+        var entityElToRemovebody = sceneEl.querySelector(`#${msg}_body`);
+        var entityElToRemovehead = sceneEl.querySelector(`#${msg}_head`);
+        var entityElToRemovename = sceneEl.querySelector(`#${msg}_name`);
+
+        entityElToRemovebody.parentNode.removeChild(entityElToRemovebody);
+        entityElToRemovehead.parentNode.removeChild(entityElToRemovehead);
+        entityElToRemovename.parentNode.removeChild(entityElToRemovename);
+      });
+
       socket.on("guests", function (msg) {
         msg.forEach((element) => {
           if (element.user !== user) {
@@ -150,7 +162,7 @@
           var audioChunks = [];
 
           madiaRecorder.addEventListener("dataavailable", function (event) {
-            console.log('data available');
+            console.log("data available");
             audioChunks.push(event.data);
           });
 

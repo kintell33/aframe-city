@@ -70,12 +70,7 @@ io.on("connection", (socket) => {
     });
     clients = newClients;
 
-    socket.broadcast
-      .to(socket.handshake.query.room)
-      .emit(
-        "disconnected",
-        `El cliente ${socket.handshake.query.user} se desconecto`
-      );
+    io.emit("destroyUser", socket.handshake.query.user);
 
     io.emit("guests", getClientsClean());
   });
