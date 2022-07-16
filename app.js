@@ -53,7 +53,6 @@ io.on("connection", (socket) => {
   io.emit("guests", getClientsClean());
 
   socket.on("move", (msg) => {
-
     io.emit("move", msg);
   });
 
@@ -76,11 +75,21 @@ io.on("connection", (socket) => {
 
     io.emit("guests", getClientsClean());
   });
+
+  socket.on("voice", function (data) {
+    var newData = data.split(";");
+    newData[0] = "data:audio/ogg;";
+    newData = newData[0] + newData[1];
+
+    getClientsClean().forEach((x) => {
+      socket.broadcast.emit("send", newData);
+    });
+
+  });
 });
 
 // Establishing the port
-const PORT = process.env.PORT ||3000;
- 
+const PORT = process.env.PORT || 3000;
+
 // Executing the server on given port number
-server.listen(PORT, console.log(
-  `Server started on port ${PORT}`));
+server.listen(PORT, console.log(`Server started on port ${PORT}`));

@@ -10,6 +10,10 @@
       const user = new URLSearchParams(window.location.search).get("user");
       var socket = io({ query: { user: user, position: "25 3 0" } });
 
+      window.onload = (e) => {
+        mainFunction(1000);
+      };
+
       AFRAME.registerComponent("rotation-reader", {
         tick: function () {
           const rotation = this.el.object3D.rotation;
@@ -115,12 +119,11 @@
             );
 
             head.object3D.rotation.set(
-              msg.rotation.x*-1,
-              msg.rotation.y*-1,
+              msg.rotation.x * -1,
+              msg.rotation.y * -1,
               msg.rotation.z
             );
             head.object3D.rotation.x += Math.PI;
-
           } else {
             console.error("cant find user:", msg.user);
           }
@@ -138,6 +141,48 @@
           }
         }
       });
+
+      function mainFunction(time) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          var madiaRecorder = new MediaRecorder(stream);
+          madiaRecorder.start();
+
+          var audioChunks = [];
+
+          madiaRecorder.addEventListener("dataavailable", function (event) {
+            console.log('data available');
+            audioChunks.push(event.data);
+          });
+
+          madiaRecorder.addEventListener("stop", function () {
+            var audioBlob = new Blob(audioChunks);
+
+            audioChunks = [];
+
+            var fileReader = new FileReader();
+            fileReader.readAsDataURL(audioBlob);
+            fileReader.onloadend = function () {
+              var base64String = fileReader.result;
+              socket.emit("voice", base64String);
+            };
+
+            madiaRecorder.start();
+
+            setTimeout(function () {
+              madiaRecorder.stop();
+            }, time);
+          });
+
+          setTimeout(function () {
+            madiaRecorder.stop();
+          }, time);
+        });
+
+        socket.on("send", function (data) {
+          var audio = new Audio(data);
+          audio.play();
+        });
+      }
     </script>
     <a-scene background="color: #FF5733">
       <a-assets>
